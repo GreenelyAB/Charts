@@ -247,8 +247,16 @@ open class HorizontalBarChartRenderer: BarChartRenderer
 
         for j in stride(from: 0, to: buffer.rects.count, by: 1)
         {
-            let barRect = buffer.rects[j]
-            
+            var barRect = buffer.rects[j]
+
+            if dataProvider.barActualWidth > 0 {
+                let barYPos = CGFloat(j) * dataProvider.barActualSpace
+                barRect = CGRect(x: barRect.origin.x,
+                                     y: barYPos,
+                                     width: barRect.size.width,
+                                     height: dataProvider.barActualWidth)
+            }
+
             if (!viewPortHandler.isInBoundsTop(barRect.origin.y + barRect.size.height))
             {
                 break
@@ -265,7 +273,18 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
 
-            context.fill(barRect)
+            if !dataProvider.barRoundingCorners.isEmpty {
+                let cornerRadius = barRect.size.height / 2
+                let bezierPath = UIBezierPath(roundedRect: barRect,
+                                              byRoundingCorners: dataProvider.barRoundingCorners,
+                                              cornerRadii: CGSize(width: cornerRadius,
+                                                                  height: cornerRadius))
+
+                context.addPath(bezierPath.cgPath)
+                context.drawPath(using: .fill)
+            } else {
+                context.fill(barRect)
+            }
 
             if drawBorder
             {
@@ -364,7 +383,15 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                     {
                         guard let e = dataSet.entryForIndex(j) as? BarChartDataEntry else { continue }
                         
-                        let rect = buffer.rects[j]
+                        var rect = buffer.rects[j]
+
+                        if dataProvider.barActualWidth > 0 {
+                            let barYPos = CGFloat(j) * dataProvider.barActualSpace
+                            rect = CGRect(x: rect.origin.x,
+                                             y: barYPos,
+                                             width: rect.size.width,
+                                             height: dataProvider.barActualWidth)
+                        }
                         
                         let y = rect.origin.y + rect.size.height / 2.0
                         
