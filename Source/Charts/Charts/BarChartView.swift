@@ -182,6 +182,4 @@ open class BarChartView: BarLineChartViewBase, BarChartDataProvider
     open var isDrawBarShadowEnabled: Bool { return drawBarShadowEnabled }
 
     open var barRoundingCorners: UIRectCorner = []
-    open var barActualWidth: CGFloat = 0
-    open var barActualSpace: CGFloat = 0
 }

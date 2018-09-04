@@ -247,15 +247,7 @@ open class HorizontalBarChartRenderer: BarChartRenderer
 
         for j in stride(from: 0, to: buffer.rects.count, by: 1)
         {
-            var barRect = buffer.rects[j]
-
-            if dataProvider.barActualWidth > 0 {
-                let barYPos = CGFloat(j) * dataProvider.barActualSpace
-                barRect = CGRect(x: barRect.origin.x,
-                                     y: barYPos,
-                                     width: barRect.size.width,
-                                     height: dataProvider.barActualWidth)
-            }
+            let barRect = buffer.rects[j]
 
             if (!viewPortHandler.isInBoundsTop(barRect.origin.y + barRect.size.height))
             {
@@ -383,15 +375,7 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                     {
                         guard let e = dataSet.entryForIndex(j) as? BarChartDataEntry else { continue }
                         
-                        var rect = buffer.rects[j]
-
-                        if dataProvider.barActualWidth > 0 {
-                            let barYPos = CGFloat(j) * dataProvider.barActualSpace
-                            rect = CGRect(x: rect.origin.x,
-                                             y: barYPos,
-                                             width: rect.size.width,
-                                             height: dataProvider.barActualWidth)
-                        }
+                        let rect = buffer.rects[j]
                         
                         let y = rect.origin.y + rect.size.height / 2.0
                         

@@ -204,8 +204,6 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
     open var isHighlightFullBarEnabled: Bool { return highlightFullBarEnabled }
 
     open var barRoundingCorners: UIRectCorner = []
-    open var barActualWidth: CGFloat = 0
-    open var barActualSpace: CGFloat = 0
 
     // MARK: - ChartViewBase
     
