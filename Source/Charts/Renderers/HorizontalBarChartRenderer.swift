@@ -243,7 +243,7 @@ open class HorizontalBarChartRenderer: BarChartRenderer
         for j in stride(from: 0, to: buffer.rects.count, by: 1)
         {
             let barRect = buffer.rects[j]
-            
+
             if (!viewPortHandler.isInBoundsTop(barRect.origin.y + barRect.size.height))
             {
                 break
@@ -260,7 +260,18 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
 
-            context.fill(barRect)
+            if !dataProvider.barRoundingCorners.isEmpty {
+                let cornerRadius = barRect.size.height / 2
+                let bezierPath = UIBezierPath(roundedRect: barRect,
+                                              byRoundingCorners: dataProvider.barRoundingCorners,
+                                              cornerRadii: CGSize(width: cornerRadius,
+                                                                  height: cornerRadius))
+
+                context.addPath(bezierPath.cgPath)
+                context.drawPath(using: .fill)
+            } else {
+                context.fill(barRect)
+            }
 
             if drawBorder
             {
