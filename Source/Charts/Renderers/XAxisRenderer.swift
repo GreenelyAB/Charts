@@ -182,6 +182,9 @@ open class XAxisRenderer: AxisRendererBase
         let labelAttrs: [NSAttributedStringKey : Any] = [NSAttributedStringKey.font: xAxis.labelFont,
             NSAttributedStringKey.foregroundColor: xAxis.labelTextColor,
             NSAttributedStringKey.paragraphStyle: paraStyle]
+        let labelAttrsSelected: [NSAttributedStringKey : Any] = [NSAttributedStringKey.font: xAxis.labelFont,
+                                                                 NSAttributedStringKey.foregroundColor: xAxis.labelTextColorSelected ?? xAxis.labelTextColor,
+                                                                 NSAttributedStringKey.paragraphStyle: paraStyle]
         let labelRotationAngleRadians = xAxis.labelRotationAngle.DEG2RAD
         
         let centeringEnabled = xAxis.isCenterAxisLabelsEnabled
@@ -243,7 +246,7 @@ open class XAxisRenderer: AxisRendererBase
                           formattedLabel: label,
                           x: position.x,
                           y: pos,
-                          attributes: labelAttrs,
+                          attributes: (i == xAxis.selectedItemIndex) ? labelAttrsSelected : labelAttrs,
                           constrainedToSize: labelMaxSize,
                           anchor: anchor,
                           angleRadians: labelRotationAngleRadians)

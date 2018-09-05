@@ -497,6 +497,22 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         var entry: ChartDataEntry?
         var h = highlight
+
+        if let xValue = h?.x
+        {
+            if let xValueIndex = xAxis.entries.index(of: xValue)
+            {
+                xAxis.selectedItemIndex = xValueIndex
+            }
+            else
+            {
+                xAxis.selectedItemIndex = NSInteger.min
+            }
+        }
+        else
+        {
+            xAxis.selectedItemIndex = NSInteger.min
+        }
         
         if h == nil
         {

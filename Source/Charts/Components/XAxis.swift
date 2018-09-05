@@ -60,6 +60,16 @@ open class XAxis: AxisBase
     /// 
     /// **default**: 1.0
     @objc open var wordWrapWidthPercent: CGFloat = 1.0
+
+    /// index of selected entry on the axis
+    ///
+    /// **default**: NSInteger.min
+    @objc open var selectedItemIndex: NSInteger = NSInteger.min
+
+    /// color of a selected entry on the axis
+    ///
+    /// **default**: nil
+    @objc open var labelTextColorSelected: NSUIColor? = nil
     
     public override init()
     {
