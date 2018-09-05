@@ -155,10 +155,29 @@ open class PieChartRenderer: DataRenderer
         element.isHeader = true
         accessibleChartElements.append(element)
 
+        if let tintColor = dataSet.tintColor {
+            // draw pie chart background
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: center.x, y: center.y + radius))
+            path.addRelativeArc(center: center, radius: radius, startAngle: CGFloat(0), delta: CGFloat(2 * Float.pi))
+            path.move(to: CGPoint(x: center.x, y: center.y + userInnerRadius))
+            path.addRelativeArc(center: center, radius: userInnerRadius, startAngle: CGFloat(0), delta: CGFloat(2 * Float.pi))
+            path.closeSubpath()
+
+            context.setFillColor(tintColor.cgColor)
+            context.beginPath()
+            context.addPath(path)
+            context.fillPath(using: .evenOdd)
+        }
+
         for j in 0 ..< entryCount
         {
             let sliceAngle = drawAngles[j]
             var innerRadius = userInnerRadius
+            var pieWidth = radius - innerRadius
+            var middleRadius = (radius + innerRadius) / 2
+            var circleLengthMiddleRadius = 2 * CGFloat(Float.pi) * middleRadius
+            var offset = dataSet.shouldRoundSlices ? (CGFloat(Float.pi) * pieWidth / circleLengthMiddleRadius).RAD2DEG : 0.0
 
             guard let e = dataSet.entryForIndex(j) else { continue }
 
@@ -181,15 +200,18 @@ open class PieChartRenderer: DataRenderer
                         sweepAngleOuter = 0.0
                     }
 
-                    let arcStartPointX = center.x + radius * cos(startAngleOuter.DEG2RAD)
-                    let arcStartPointY = center.y + radius * sin(startAngleOuter.DEG2RAD)
+                    let arcStartPointX = center.x + radius * cos((startAngleOuter + offset).DEG2RAD)
+                    let arcStartPointY = center.y + radius * sin((startAngleOuter + offset).DEG2RAD)
 
                     let path = CGMutablePath()
+                    let startPoint = CGPoint(x: arcStartPointX, y: arcStartPointY)
+                    path.move(to: startPoint)
 
-                    path.move(to: CGPoint(x: arcStartPointX,
-                                          y: arcStartPointY))
+                    path.addRelativeArc(center: center,
+                                        radius: radius,
+                                        startAngle: (startAngleOuter + offset).DEG2RAD,
+                                        delta: (sweepAngleOuter - 2 * offset).DEG2RAD)
 
-                    path.addRelativeArc(center: center, radius: radius, startAngle: startAngleOuter.DEG2RAD, delta: sweepAngleOuter.DEG2RAD)
 
                     if drawInnerArc &&
                         (innerRadius > 0.0 || accountForSliceSpacing)
@@ -209,6 +231,10 @@ open class PieChartRenderer: DataRenderer
                                 minSpacedRadius = -minSpacedRadius
                             }
                             innerRadius = min(max(innerRadius, minSpacedRadius), radius)
+                            pieWidth = radius - innerRadius
+                            middleRadius = (radius + innerRadius) / 2
+                            circleLengthMiddleRadius = 2 * CGFloat(Float.pi) * middleRadius
+                            offset = dataSet.shouldRoundSlices ? (CGFloat(Float.pi) * pieWidth / circleLengthMiddleRadius).RAD2DEG : 0.0
                         }
 
                         let sliceSpaceAngleInner = visibleAngleCount == 1 || innerRadius == 0.0 ?
@@ -222,12 +248,31 @@ open class PieChartRenderer: DataRenderer
                         }
                         let endAngleInner = startAngleInner + sweepAngleInner
 
-                        path.addLine(
-                            to: CGPoint(
-                                x: center.x + innerRadius * cos(endAngleInner.DEG2RAD),
-                                y: center.y + innerRadius * sin(endAngleInner.DEG2RAD)))
+                        let innerPoint = CGPoint(x: center.x + innerRadius * cos((endAngleInner - offset).DEG2RAD),
+                                                 y: center.y + innerRadius * sin((endAngleInner - offset).DEG2RAD))
 
-                        path.addRelativeArc(center: center, radius: innerRadius, startAngle: endAngleInner.DEG2RAD, delta: -sweepAngleInner.DEG2RAD)
+                        if dataSet.shouldRoundSlices {
+                            let firstControl = CGPoint(x: center.x + radius * cos((endAngleInner).DEG2RAD),
+                                                       y: center.y + radius * sin((endAngleInner).DEG2RAD))
+                            let secondControl = CGPoint(x: center.x + innerRadius * cos((endAngleInner).DEG2RAD),
+                                                        y: center.y + innerRadius * sin((endAngleInner).DEG2RAD))
+                            path.addCurve(to: innerPoint, control1: firstControl, control2: secondControl)
+                        } else {
+                            path.addLine(to: innerPoint)
+                        }
+
+                        path.addRelativeArc(center: center,
+                                            radius: innerRadius,
+                                            startAngle: (endAngleInner - offset).DEG2RAD,
+                                            delta: (-sweepAngleInner + 2 * offset).DEG2RAD)
+
+                        if dataSet.shouldRoundSlices {
+                            let firstControl = CGPoint(x: center.x + innerRadius * cos((endAngleInner - sweepAngleInner).DEG2RAD),
+                                                       y: center.y + innerRadius * sin((endAngleInner - sweepAngleInner).DEG2RAD))
+                            let secondControl = CGPoint(x: center.x + radius * cos((endAngleInner - sweepAngleInner).DEG2RAD),
+                                                        y: center.y + radius * sin((endAngleInner - sweepAngleInner).DEG2RAD))
+                            path.addCurve(to: startPoint, control1: firstControl, control2: secondControl)
+                        }
                     }
                     else
                     {

@@ -62,4 +62,9 @@ public protocol IPieChartDataSet: IChartDataSet
     /// get/sets the color for the highlighted sector
     var highlightColor: NSUIColor? { get set }
 
+    /// get/sets the tint color for the pie chart
+    var tintColor: NSUIColor? { get set }
+
+    /// When enabled, slices will be rounded
+    var shouldRoundSlices: Bool { get set }
 }
