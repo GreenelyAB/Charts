@@ -159,9 +159,9 @@ open class PieChartRenderer: DataRenderer
             // draw pie chart background
             let path = CGMutablePath()
             path.move(to: CGPoint(x: center.x, y: center.y + radius))
-            path.addRelativeArc(center: center, radius: radius, startAngle: CGFloat(0), delta: CGFloat(2 * Float.pi))
+            path.addRelativeArc(center: center, radius: radius, startAngle: 0, delta: CGFloat(2) * .pi)
             path.move(to: CGPoint(x: center.x, y: center.y + userInnerRadius))
-            path.addRelativeArc(center: center, radius: userInnerRadius, startAngle: CGFloat(0), delta: CGFloat(2 * Float.pi))
+            path.addRelativeArc(center: center, radius: userInnerRadius, startAngle: 0, delta: CGFloat(2) * .pi)
             path.closeSubpath()
 
             context.setFillColor(tintColor.cgColor)
@@ -176,8 +176,8 @@ open class PieChartRenderer: DataRenderer
             var innerRadius = userInnerRadius
             var pieWidth = radius - innerRadius
             var middleRadius = (radius + innerRadius) / 2
-            var circleLengthMiddleRadius = 2 * CGFloat(Float.pi) * middleRadius
-            var offset = dataSet.shouldRoundSlices ? (CGFloat(Float.pi) * pieWidth / circleLengthMiddleRadius).RAD2DEG : 0.0
+            var circleLengthMiddleRadius = 2 * CGFloat.pi * middleRadius
+            var offset = dataSet.shouldRoundSlices ? (CGFloat.pi * pieWidth / circleLengthMiddleRadius).RAD2DEG : 0.0
 
             guard let e = dataSet.entryForIndex(j) else { continue }
 
@@ -233,8 +233,8 @@ open class PieChartRenderer: DataRenderer
                             innerRadius = min(max(innerRadius, minSpacedRadius), radius)
                             pieWidth = radius - innerRadius
                             middleRadius = (radius + innerRadius) / 2
-                            circleLengthMiddleRadius = 2 * CGFloat(Float.pi) * middleRadius
-                            offset = dataSet.shouldRoundSlices ? (CGFloat(Float.pi) * pieWidth / circleLengthMiddleRadius).RAD2DEG : 0.0
+                            circleLengthMiddleRadius = 2 * CGFloat.pi * middleRadius
+                            offset = dataSet.shouldRoundSlices ? (CGFloat.pi * pieWidth / circleLengthMiddleRadius).RAD2DEG : 0.0
                         }
 
                         let sliceSpaceAngleInner = visibleAngleCount == 1 || innerRadius == 0.0 ?
@@ -248,14 +248,17 @@ open class PieChartRenderer: DataRenderer
                         }
                         let endAngleInner = startAngleInner + sweepAngleInner
 
-                        let innerPoint = CGPoint(x: center.x + innerRadius * cos((endAngleInner - offset).DEG2RAD),
-                                                 y: center.y + innerRadius * sin((endAngleInner - offset).DEG2RAD))
+                        let innerPointAngleRad = (endAngleInner - offset).DEG2RAD
+                        let innerPoint = CGPoint(x: center.x + innerRadius * cos(innerPointAngleRad),
+                                                 y: center.y + innerRadius * sin(innerPointAngleRad))
 
                         if dataSet.shouldRoundSlices {
-                            let firstControl = CGPoint(x: center.x + radius * cos((endAngleInner).DEG2RAD),
-                                                       y: center.y + radius * sin((endAngleInner).DEG2RAD))
-                            let secondControl = CGPoint(x: center.x + innerRadius * cos((endAngleInner).DEG2RAD),
-                                                        y: center.y + innerRadius * sin((endAngleInner).DEG2RAD))
+                            let endAngleSin = sin(endAngleInner.DEG2RAD)
+                            let endAngleCos = cos(endAngleInner.DEG2RAD)
+                            let firstControl = CGPoint(x: center.x + radius * endAngleCos,
+                                                       y: center.y + radius * endAngleSin)
+                            let secondControl = CGPoint(x: center.x + innerRadius * endAngleCos,
+                                                        y: center.y + innerRadius * endAngleSin)
                             path.addCurve(to: innerPoint, control1: firstControl, control2: secondControl)
                         } else {
                             path.addLine(to: innerPoint)
@@ -263,14 +266,16 @@ open class PieChartRenderer: DataRenderer
 
                         path.addRelativeArc(center: center,
                                             radius: innerRadius,
-                                            startAngle: (endAngleInner - offset).DEG2RAD,
+                                            startAngle: innerPointAngleRad,
                                             delta: (-sweepAngleInner + 2 * offset).DEG2RAD)
 
                         if dataSet.shouldRoundSlices {
-                            let firstControl = CGPoint(x: center.x + innerRadius * cos((endAngleInner - sweepAngleInner).DEG2RAD),
-                                                       y: center.y + innerRadius * sin((endAngleInner - sweepAngleInner).DEG2RAD))
-                            let secondControl = CGPoint(x: center.x + radius * cos((endAngleInner - sweepAngleInner).DEG2RAD),
-                                                        y: center.y + radius * sin((endAngleInner - sweepAngleInner).DEG2RAD))
+                            let startAngleSin = sin((endAngleInner - sweepAngleInner).DEG2RAD)
+                            let startAngleCos = cos((endAngleInner - sweepAngleInner).DEG2RAD)
+                            let firstControl = CGPoint(x: center.x + innerRadius * startAngleCos,
+                                                       y: center.y + innerRadius * startAngleSin)
+                            let secondControl = CGPoint(x: center.x + radius * startAngleCos,
+                                                        y: center.y + radius * startAngleSin)
                             path.addCurve(to: startPoint, control1: firstControl, control2: secondControl)
                         }
                     }
