@@ -265,15 +265,23 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
 
-            if !dataProvider.barRoundingCorners.isEmpty {
-                let cornerRadius = barRect.size.height / 2
-                let bezierPath = UIBezierPath(roundedRect: barRect,
-                                              byRoundingCorners: dataProvider.barRoundingCorners,
-                                              cornerRadii: CGSize(width: cornerRadius,
-                                                                  height: cornerRadius))
+            if dataProvider.shouldRoundBars {
+                let path = CGMutablePath()
+                path.move(to: barRect.origin)
 
-                context.addPath(bezierPath.cgPath)
-                context.drawPath(using: .fill)
+                let cornerRadius: CGFloat = barRect.height / 2
+                let curvePointX = barRect.maxX - cornerRadius
+                let controlPointX = barRect.maxX + cornerRadius / 3
+
+                path.addLine(to: CGPoint(x: curvePointX, y: barRect.minY))
+                path.addCurve(to: CGPoint(x: curvePointX, y: barRect.maxY),
+                              control1: CGPoint(x: controlPointX, y: barRect.minY),
+                              control2: CGPoint(x: controlPointX, y: barRect.maxY))
+                path.addLine(to: CGPoint(x: barRect.minX, y: barRect.maxY))
+                path.closeSubpath()
+
+                context.addPath(path)
+                context.fillPath()
             } else {
                 context.fill(barRect)
             }
