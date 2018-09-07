@@ -506,12 +506,14 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             }
             else
             {
-                xAxis.selectedItemIndex = NSInteger.min
+                // deselecting axis item when an axis item related to a highlighted chart entry is not recognized
+                xAxis.selectedItemIndex = nil
             }
         }
         else
         {
-            xAxis.selectedItemIndex = NSInteger.min
+            // deselecting axis item when there's no highlighted chart entry
+            xAxis.selectedItemIndex = nil
         }
         
         if h == nil

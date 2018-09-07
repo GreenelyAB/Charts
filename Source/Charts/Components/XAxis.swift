@@ -63,8 +63,8 @@ open class XAxis: AxisBase
 
     /// index of selected entry on the axis
     ///
-    /// **default**: NSInteger.min
-    @objc open var selectedItemIndex: NSInteger = NSInteger.min
+    /// **default**: nil
+    open var selectedItemIndex: Int? = nil
 
     /// color of a selected entry on the axis
     ///
