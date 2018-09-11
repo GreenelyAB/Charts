@@ -21,5 +21,5 @@ public protocol BarChartDataProvider: BarLineScatterCandleBubbleChartDataProvide
     var isDrawValueAboveBarEnabled: Bool { get }
     var isHighlightFullBarEnabled: Bool { get }
 
-    var barRoundingCorners: UIRectCorner { get }
+    var shouldRoundBars: Bool { get set }
 }

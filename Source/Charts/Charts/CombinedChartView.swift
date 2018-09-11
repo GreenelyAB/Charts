@@ -203,7 +203,7 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
     /// `true` the highlight is be full-bar oriented, `false` ifsingle-value
     open var isHighlightFullBarEnabled: Bool { return highlightFullBarEnabled }
 
-    open var barRoundingCorners: UIRectCorner = []
+    open var shouldRoundBars = false
 
     // MARK: - ChartViewBase
     

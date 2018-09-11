@@ -423,18 +423,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
 
-            if !dataProvider.barRoundingCorners.isEmpty {
-                let cornerRadius = barRect.size.height / 2
-                let bezierPath = UIBezierPath(roundedRect: barRect,
-                                              byRoundingCorners: dataProvider.barRoundingCorners,
-                                              cornerRadii: CGSize(width: cornerRadius,
-                                                                  height: cornerRadius))
-
-                context.addPath(bezierPath.cgPath)
-                context.drawPath(using: .fill)
-            } else {
-                context.fill(barRect)
-            }
+            drawBar(context: context, barRect: barRect, rounded: dataProvider.shouldRoundBars)
             
             if drawBorder
             {
@@ -814,22 +803,34 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 setHighlightDrawPos(highlight: high, barRect: barRect)
 
-                if !dataProvider.barRoundingCorners.isEmpty {
-                    let cornerRadius = barRect.size.height / 2
-                    let bezierPath = UIBezierPath(roundedRect: barRect,
-                                                  byRoundingCorners: dataProvider.barRoundingCorners,
-                                                  cornerRadii: CGSize(width: cornerRadius,
-                                                                      height: cornerRadius))
-
-                    context.addPath(bezierPath.cgPath)
-                    context.drawPath(using: .fill)
-                } else {
-                    context.fill(barRect)
-                }
+                drawBar(context: context, barRect: barRect, rounded: dataProvider.shouldRoundBars)
             }
         }
         
         context.restoreGState()
+    }
+
+    open func drawBar(context: CGContext, barRect: CGRect, rounded: Bool) {
+        if rounded {
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: barRect.minX, y: barRect.maxY))
+
+            let cornerRadius: CGFloat = barRect.width / 2
+            let curvePointY = barRect.minY + cornerRadius
+            let controlPointY = barRect.minY - cornerRadius / 3
+
+            path.addLine(to: CGPoint(x: barRect.minX, y: curvePointY))
+            path.addCurve(to: CGPoint(x: barRect.maxX, y: curvePointY),
+                          control1: CGPoint(x: barRect.minX, y: controlPointY),
+                          control2: CGPoint(x: barRect.maxX, y: controlPointY))
+            path.addLine(to: CGPoint(x: barRect.maxX, y: barRect.maxY))
+            path.closeSubpath()
+
+            context.addPath(path)
+            context.fillPath()
+        } else {
+            context.fill(barRect)
+        }
     }
 
     /// Sets the drawing position of the highlight object based on the given bar-rect.
