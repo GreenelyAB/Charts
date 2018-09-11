@@ -111,6 +111,12 @@ open class PieChartDataSet: ChartDataSet, IPieChartDataSet
     /// the color for the highlighted sector
     open var highlightColor: NSUIColor? = nil
 
+    /// the tint color of the pie chart
+    open var tintColor: NSUIColor? = nil
+
+    /// When enabled, slices will be rounded
+    open var shouldRoundSlices: Bool = false
+
     // MARK: - NSCopying
 
     open override func copy(with zone: NSZone? = nil) -> Any
