@@ -758,6 +758,29 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
         context.restoreGState()
     }
 
+    open func drawBar(context: CGContext, barRect: CGRect, rounded: Bool) {
+        if rounded {
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: barRect.minX, y: barRect.maxY))
+
+            let cornerRadius: CGFloat = barRect.width / 2
+            let curvePointY = barRect.minY + cornerRadius
+            let controlPointY = barRect.minY - cornerRadius / 3
+
+            path.addLine(to: CGPoint(x: barRect.minX, y: curvePointY))
+            path.addCurve(to: CGPoint(x: barRect.maxX, y: curvePointY),
+                          control1: CGPoint(x: barRect.minX, y: controlPointY),
+                          control2: CGPoint(x: barRect.maxX, y: controlPointY))
+            path.addLine(to: CGPoint(x: barRect.maxX, y: barRect.maxY))
+            path.closeSubpath()
+
+            context.addPath(path)
+            context.fillPath()
+        } else {
+            context.fill(barRect)
+        }
+    }
+
     /// Sets the drawing position of the highlight object based on the given bar-rect.
     internal func setHighlightDrawPos(highlight high: Highlight, barRect: CGRect)
     {
@@ -825,28 +848,5 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
         modifier(element)
 
         return element
-    }
-
-    private func drawBar(context: CGContext, barRect: CGRect, rounded: Bool) {
-        if rounded {
-            let path = CGMutablePath()
-            path.move(to: CGPoint(x: barRect.minX, y: barRect.maxY))
-
-            let cornerRadius: CGFloat = barRect.width / 2
-            let curvePointY = barRect.minY + cornerRadius
-            let controlPointY = barRect.minY - cornerRadius / 3
-
-            path.addLine(to: CGPoint(x: barRect.minX, y: curvePointY))
-            path.addCurve(to: CGPoint(x: barRect.maxX, y: curvePointY),
-                          control1: CGPoint(x: barRect.minX, y: controlPointY),
-                          control2: CGPoint(x: barRect.maxX, y: controlPointY))
-            path.addLine(to: CGPoint(x: barRect.maxX, y: barRect.maxY))
-            path.closeSubpath()
-
-            context.addPath(path)
-            context.fillPath()
-        } else {
-            context.fill(barRect)
-        }
     }
 }
