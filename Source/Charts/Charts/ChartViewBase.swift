@@ -512,6 +512,24 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         var entry: ChartDataEntry?
         var h = highlight
+
+        if let xValue = h?.x
+        {
+            if let xValueIndex = xAxis.entries.index(of: xValue)
+            {
+                xAxis.selectedItemIndex = xValueIndex
+            }
+            else
+            {
+                // deselecting axis item when an axis item related to a highlighted chart entry is not recognized
+                xAxis.selectedItemIndex = nil
+            }
+        }
+        else
+        {
+            // deselecting axis item when there's no highlighted chart entry
+            xAxis.selectedItemIndex = nil
+        }
         
         if h == nil
         {
