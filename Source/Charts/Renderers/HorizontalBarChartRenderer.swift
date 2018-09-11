@@ -265,18 +265,7 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
 
-            if !dataProvider.barRoundingCorners.isEmpty {
-                let cornerRadius = barRect.size.height / 2
-                let bezierPath = UIBezierPath(roundedRect: barRect,
-                                              byRoundingCorners: dataProvider.barRoundingCorners,
-                                              cornerRadii: CGSize(width: cornerRadius,
-                                                                  height: cornerRadius))
-
-                context.addPath(bezierPath.cgPath)
-                context.drawPath(using: .fill)
-            } else {
-                context.fill(barRect)
-            }
+            drawBar(context: context, barRect: barRect, rounded: dataProvider.shouldRoundBars)
 
             if drawBorder
             {
@@ -632,6 +621,29 @@ open class HorizontalBarChartRenderer: BarChartRenderer
         guard let data = dataProvider?.data
             else { return false }
         return data.entryCount < Int(CGFloat(dataProvider?.maxVisibleCount ?? 0) * self.viewPortHandler.scaleY)
+    }
+
+    open override func drawBar(context: CGContext, barRect: CGRect, rounded: Bool) {
+        if rounded {
+            let path = CGMutablePath()
+            path.move(to: barRect.origin)
+
+            let cornerRadius: CGFloat = barRect.height / 2
+            let curvePointX = barRect.maxX - cornerRadius
+            let controlPointX = barRect.maxX + cornerRadius / 3
+
+            path.addLine(to: CGPoint(x: curvePointX, y: barRect.minY))
+            path.addCurve(to: CGPoint(x: curvePointX, y: barRect.maxY),
+                          control1: CGPoint(x: controlPointX, y: barRect.minY),
+                          control2: CGPoint(x: controlPointX, y: barRect.maxY))
+            path.addLine(to: CGPoint(x: barRect.minX, y: barRect.maxY))
+            path.closeSubpath()
+
+            context.addPath(path)
+            context.fillPath()
+        } else {
+            context.fill(barRect)
+        }
     }
     
     /// Sets the drawing position of the highlight object based on the riven bar-rect.
