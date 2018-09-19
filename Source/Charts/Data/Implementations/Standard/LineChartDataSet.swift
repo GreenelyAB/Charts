@@ -13,8 +13,12 @@ import Foundation
 import CoreGraphics
 
 
-open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet
+open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet, IValueSliceLineChartDataSet
 {
+    open var drawCirclesOnlyForHighlightedValueEnabled: Bool = false
+
+    open var isDrawCirclesOnlyForHighlightedValueEnabled: Bool { return drawCirclesOnlyForHighlightedValueEnabled }
+    
     @objc(LineChartMode)
     public enum Mode: Int
     {

@@ -239,7 +239,21 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
             }
             
             // callbacks to update the content
-            marker.refreshContent(entry: e, highlight: highlight)
+            if let marker = marker as? IMultiValueMarker {
+                var markerData: [MarkerData] = []
+                var dataSetIndex = 0
+                for dataSet in data?.dataSets ?? [] {
+                    if let entry = dataSet.entriesForXValue(e.x).first,
+                        let color = dataSet.colors.first {
+                        let highlight = Highlight(x: entry.x, y: entry.y, dataSetIndex: dataSetIndex)
+                        markerData.append(MarkerData(entry: entry, highlight: highlight, color: color, valueFormatter: dataSet.valueFormatter))
+                    }
+                    dataSetIndex += 1
+                }
+                marker.refreshContent(items: markerData)
+            } else {
+                marker.refreshContent(entry: e, highlight: highlight)
+            }
             
             // draw the marker
             marker.draw(context: context, point: pos)

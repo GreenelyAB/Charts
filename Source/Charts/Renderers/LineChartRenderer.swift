@@ -693,6 +693,16 @@ open class LineChartRenderer: LineRadarRenderer
                     continue
                 }
 
+                if let dataSet = dataSet as? IValueSliceLineChartDataSet,
+                    dataSet.isDrawCirclesOnlyForHighlightedValueEnabled,
+                    let chart = dataProvider as? LineChartView,
+                    !chart.highlighted.contains { (highlight) -> Bool in
+                        return highlight.x == e.x
+                    }
+                {
+                    continue
+                }
+
                 context.setFillColor(dataSet.getCircleColor(atIndex: j)!.cgColor)
 
                 rect.origin.x = pt.x - circleRadius
