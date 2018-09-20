@@ -16,17 +16,12 @@ open class MultiValueMarkerImage: NSObject, IMultiValueMarker
     /// The marker image to render
     @objc open var image: NSUIImage?
 
-    open var offset: CGPoint = CGPoint()
+    open var offset = CGPoint()
 
     @objc open weak var chartView: ChartViewBase?
 
     /// As long as size is 0.0/0.0 - it will default to the image's size
-    @objc open var size: CGSize = CGSize()
-
-    public override init()
-    {
-        super.init()
-    }
+    @objc open var size = CGSize()
 
     open func offsetForDrawing(atPoint point: CGPoint) -> CGPoint
     {
@@ -36,13 +31,16 @@ open class MultiValueMarkerImage: NSObject, IMultiValueMarker
 
         var size = self.size
 
-        if size.width == 0.0 && image != nil
+        if let image = image
         {
-            size.width = image?.size.width ?? 0.0
-        }
-        if size.height == 0.0 && image != nil
-        {
-            size.height = image?.size.height ?? 0.0
+            if size.width == 0.0
+            {
+                size.width = image.size.width
+            }
+            if size.height == 0.0
+            {
+                size.height = image.size.height
+            }
         }
 
         let width = size.width
@@ -52,18 +50,18 @@ open class MultiValueMarkerImage: NSObject, IMultiValueMarker
         {
             offset.x = -point.x
         }
-        else if chart != nil && point.x + width + offset.x > chart!.bounds.size.width
+        else if let chart = chart, point.x + width + offset.x > chart.bounds.size.width
         {
-            offset.x = chart!.bounds.size.width - point.x - width
+            offset.x = chart.bounds.size.width - point.x - width
         }
 
         if point.y + offset.y < 0
         {
             offset.y = -point.y
         }
-        else if chart != nil && point.y + height + offset.y > chart!.bounds.size.height
+        else if let chart = chart, point.y + height + offset.y > chart.bounds.size.height
         {
-            offset.y = chart!.bounds.size.height - point.y - height
+            offset.y = chart.bounds.size.height - point.y - height
         }
 
         return offset

@@ -15,7 +15,7 @@ import CoreGraphics
 
 open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet, IValueSliceLineChartDataSet
 {
-    open var drawCirclesOnlyForHighlightedValueEnabled: Bool = false
+    open var drawCirclesOnlyForHighlightedValueEnabled = false
 
     open var isDrawCirclesOnlyForHighlightedValueEnabled: Bool { return drawCirclesOnlyForHighlightedValueEnabled }
     
