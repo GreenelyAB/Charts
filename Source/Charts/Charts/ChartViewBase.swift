@@ -609,11 +609,13 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             if let marker = marker as? IMultiValueMarker {
                 var markerData: [MarkerData] = []
                 (data?.dataSets ?? []).enumerated().forEach({ (dataSetIndex, dataSet) in
-                    if let entry = dataSet.entriesForXValue(e.x).first,
-                        let color = dataSet.colors.first {
-                        let highlight = Highlight(x: entry.x, y: entry.y, dataSetIndex: dataSetIndex)
-                        markerData.append(MarkerData(entry: entry, highlight: highlight, color: color, valueFormatter: dataSet.valueFormatter))
+                    guard let entry = dataSet.entriesForXValue(e.x).first,
+                        let color = dataSet.colors.first else {
+                            return
                     }
+
+                    let highlight = Highlight(x: entry.x, y: entry.y, dataSetIndex: dataSetIndex)
+                    markerData.append(MarkerData(entry: entry, highlight: highlight, color: color, valueFormatter: dataSet.valueFormatter))
                 })
 
                 marker.refreshContent(items: markerData)

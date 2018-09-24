@@ -16,7 +16,7 @@ open class MultiValueMarkerImage: NSObject, IMultiValueMarker
     /// The marker image to render
     @objc open var image: NSUIImage?
 
-    open var offset = CGPoint()
+    @objc open var offset = CGPoint()
 
     @objc open weak var chartView: ChartViewBase?
 
