@@ -695,7 +695,7 @@ open class LineChartRenderer: LineRadarRenderer
 
                 if let dataSet = dataSet as? IValueSliceLineChartDataSet,
                     dataSet.isDrawCirclesOnlyForHighlightedValueEnabled,
-                    let chart = dataProvider as? LineChartView,
+                    let chart = dataProvider as? BarLineChartViewBase,
                     !chart.highlighted.contains { (highlight) -> Bool in
                         return highlight.x == e.x
                     }
