@@ -11,6 +11,7 @@ types are aliased to either their UI* implementation (on iOS) or their NS* imple
 	public typealias NSUIEvent = UIEvent
 	public typealias NSUITouch = UITouch
 	public typealias NSUIImage = UIImage
+	public typealias NSUIBezierPath = UIBezierPath
 	public typealias NSUIScrollView = UIScrollView
 	public typealias NSUIGestureRecognizer = UIGestureRecognizer
 	public typealias NSUIGestureRecognizerState = UIGestureRecognizerState
@@ -220,6 +221,7 @@ types are aliased to either their UI* implementation (on iOS) or their NS* imple
 	public typealias NSUIEvent = NSEvent
 	public typealias NSUITouch = NSTouch
 	public typealias NSUIImage = NSImage
+	public typealias NSUIBezierPath = NSBezierPath
 	public typealias NSUIScrollView = NSScrollView
 	public typealias NSUIGestureRecognizer = NSGestureRecognizer
 	public typealias NSUIGestureRecognizerState = NSGestureRecognizer.State
@@ -382,6 +384,35 @@ types are aliased to either their UI* implementation (on iOS) or their NS* imple
 			return self.gestureRecognizers
 		}
 	}
+
+    extension NSBezierPath
+    {
+        convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat) // rounds all corners with the same horizontal and vertical radius
+        {
+            self.init(roundedRect: rect, xRadius: cornerRadius, yRadius: cornerRadius)
+        }
+
+        var cgPath: CGPath {
+            let path = CGMutablePath()
+            var points = [CGPoint](repeating: .zero, count: 3)
+
+            for i in 0 ..< self.elementCount {
+                let type = self.element(at: i, associatedPoints: &points)
+                switch type {
+                case .moveToBezierPathElement:
+                    path.move(to: points[0])
+                case .lineToBezierPathElement:
+                    path.addLine(to: points[0])
+                case .curveToBezierPathElement:
+                    path.addCurve(to: points[2], control1: points[0], control2: points[1])
+                case .closePathBezierPathElement:
+                    path.closeSubpath()
+                }
+            }
+
+            return path
+        }
+    }
 
     extension NSScrollView
     {

@@ -63,7 +63,8 @@ open class LegendRenderer: Renderer
                                 formLineWidth: dataSet.formLineWidth,
                                 formLineDashPhase: dataSet.formLineDashPhase,
                                 formLineDashLengths: dataSet.formLineDashLengths,
-                                formColor: clrs[j]
+                                formColor: clrs[j],
+                                formRoundedRectCornerRadius: dataSet.formRoundedRectCornerRadius
                             )
                         )
                     }
@@ -80,7 +81,8 @@ open class LegendRenderer: Renderer
                                 formLineWidth: CGFloat.nan,
                                 formLineDashPhase: 0.0,
                                 formLineDashLengths: nil,
-                                formColor: nil
+                                formColor: nil,
+                                formRoundedRectCornerRadius: CGFloat.nan
                             )
                         )
                     }
@@ -99,7 +101,8 @@ open class LegendRenderer: Renderer
                                 formLineWidth: dataSet.formLineWidth,
                                 formLineDashPhase: dataSet.formLineDashPhase,
                                 formLineDashLengths: dataSet.formLineDashLengths,
-                                formColor: clrs[j]
+                                formColor: clrs[j],
+                                formRoundedRectCornerRadius: dataSet.formRoundedRectCornerRadius
                             )
                         )
                     }
@@ -116,7 +119,8 @@ open class LegendRenderer: Renderer
                                 formLineWidth: CGFloat.nan,
                                 formLineDashPhase: 0.0,
                                 formLineDashLengths: nil,
-                                formColor: nil
+                                formColor: nil,
+                                formRoundedRectCornerRadius: CGFloat.nan
                             )
                         )
                     }
@@ -134,7 +138,8 @@ open class LegendRenderer: Renderer
                             formLineWidth: dataSet.formLineWidth,
                             formLineDashPhase: dataSet.formLineDashPhase,
                             formLineDashLengths: dataSet.formLineDashLengths,
-                            formColor: candleDataSet.decreasingColor
+                            formColor: candleDataSet.decreasingColor,
+                            formRoundedRectCornerRadius: dataSet.formRoundedRectCornerRadius
                         )
                     )
                     
@@ -146,7 +151,8 @@ open class LegendRenderer: Renderer
                             formLineWidth: dataSet.formLineWidth,
                             formLineDashPhase: dataSet.formLineDashPhase,
                             formLineDashLengths: dataSet.formLineDashLengths,
-                            formColor: candleDataSet.increasingColor
+                            formColor: candleDataSet.increasingColor,
+                            formRoundedRectCornerRadius: dataSet.formRoundedRectCornerRadius
                         )
                     )
                 }
@@ -175,7 +181,8 @@ open class LegendRenderer: Renderer
                                 formLineWidth: dataSet.formLineWidth,
                                 formLineDashPhase: dataSet.formLineDashPhase,
                                 formLineDashLengths: dataSet.formLineDashLengths,
-                                formColor: clrs[j]
+                                formColor: clrs[j],
+                                formRoundedRectCornerRadius: dataSet.formRoundedRectCornerRadius
                             )
                         )
                     }
@@ -559,6 +566,27 @@ open class LegendRenderer: Renderer
             _formLineSegmentsBuffer[1].x = x + formSize
             _formLineSegmentsBuffer[1].y = y
             context.strokeLineSegments(between: _formLineSegmentsBuffer)
+
+        case .roundedRect:
+
+            let roundedRect: CGFloat = {
+                if !entry.formRoundedRectCornerRadius.isNaN {
+                    return entry.formRoundedRectCornerRadius
+                }
+                return legend.formRoundedRectCornerRadius.isNaN ? 0 : legend.formRoundedRectCornerRadius
+            }()
+
+            context.saveGState()
+
+            let rect = CGRect(x: x, y: y - formSize / 2, width: formSize, height: formSize)
+            let clipPath = NSUIBezierPath(roundedRect: rect, cornerRadius: roundedRect).cgPath
+
+            context.addPath(clipPath)
+            context.setFillColor(formColor.cgColor)
+
+            context.closePath()
+            context.fillPath()
+            context.restoreGState()
         }
     }
 

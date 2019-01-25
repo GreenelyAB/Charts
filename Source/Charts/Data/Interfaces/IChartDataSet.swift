@@ -229,6 +229,11 @@ public protocol IChartDataSet
     /// I.e. [2, 3] will paint [--   --   ]
     /// [1, 3, 4, 2] will paint [-   ----  -   ----  ]
     var formLineDashLengths: [CGFloat]? { get }
+
+    /// The corner radius used for drawing the roundedRect form of this dataset in the legend
+    ///
+    /// Return `NaN` to use the default legend form rounded rect corner radius.
+    var formRoundedRectCornerRadius: CGFloat { get }
     
     /// Set this to true to draw y-values on the chart.
     ///

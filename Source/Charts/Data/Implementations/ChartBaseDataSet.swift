@@ -351,6 +351,11 @@ open class ChartBaseDataSet: NSObject, IChartDataSet
     /// I.e. [2, 3] will paint [--   --   ]
     /// [1, 3, 4, 2] will paint [-   ----  -   ----  ]
     open var formLineDashLengths: [CGFloat]? = nil
+
+    /// The corner radius used for drawing the roundedRect form of this dataset in the legend
+    ///
+    /// Return `NaN` to use the default legend form rounded rect corner radius.
+    open var formRoundedRectCornerRadius: CGFloat = .nan
     
     /// Set this to true to draw y-values on the chart.
     ///
