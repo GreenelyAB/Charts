@@ -39,6 +39,9 @@ open class Legend: ComponentBase
         
         /// Draw a horizontal line
         case line
+
+        /// Draw a rounded rectangle
+        case roundedRect
     }
     
     @objc(ChartLegendHorizontalAlignment)
@@ -124,7 +127,10 @@ open class Legend: ComponentBase
     /// I.e. [2, 3] will paint [--   --   ]
     /// [1, 3, 4, 2] will paint [-   ----  -   ----  ]
     @objc open var formLineDashLengths: [CGFloat]?
-    
+
+    /// The corner radius used for roundedRect form
+    @objc open var formRoundedRectCornerRadius = CGFloat(2.0)
+
     @objc open var xEntrySpace = CGFloat(6.0)
     @objc open var yEntrySpace = CGFloat(0.0)
     @objc open var formToTextSpace = CGFloat(5.0)
