@@ -29,13 +29,15 @@ open class LegendEntry: NSObject
     ///   - formLineDashPhase:      Line dash configuration.
     ///   - formLineDashLengths:    Line dash configurationas NaN to use the legend's default.
     ///   - formColor:              The color for drawing the form.
+
     @objc public init(label: String?,
                 form: Legend.Form,
                 formSize: CGFloat,
                 formLineWidth: CGFloat,
                 formLineDashPhase: CGFloat,
                 formLineDashLengths: [CGFloat]?,
-                formColor: NSUIColor?)
+                formColor: NSUIColor?,
+                formRoundedRectCornerRadius: CGFloat)
     {
         self.label = label
         self.form = form
@@ -44,6 +46,7 @@ open class LegendEntry: NSObject
         self.formLineDashPhase = formLineDashPhase
         self.formLineDashLengths = formLineDashLengths
         self.formColor = formColor
+        self.formRoundedRectCornerRadius = formRoundedRectCornerRadius
     }
     
     /// The legend entry text.
@@ -85,4 +88,9 @@ open class LegendEntry: NSObject
     
     /// The color for drawing the form
     @objc open var formColor: NSUIColor?
+
+    /// The corner radius used for roundedRect form.
+    ///
+    /// Set as NaN to use the legend's default
+    @objc open var formRoundedRectCornerRadius: CGFloat = 0.0
 }
