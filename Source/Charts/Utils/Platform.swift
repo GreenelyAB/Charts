@@ -4,7 +4,6 @@ import Foundation
  alike, and for the chart library's usage of the APIs it is often sufficient to typealias one to the other. The NSUI*
  types are aliased to either their UI* implementation (on iOS) or their NS* implementation (on OS X). */
 #if os(iOS) || os(tvOS)
-<<<<<<< HEAD
 import UIKit
 
 public typealias NSUIFont = UIFont
@@ -12,28 +11,13 @@ public typealias NSUIColor = UIColor
 public typealias NSUIEvent = UIEvent
 public typealias NSUITouch = UITouch
 public typealias NSUIImage = UIImage
+public typealias NSUIBezierPath = UIBezierPath
 public typealias NSUIScrollView = UIScrollView
 public typealias NSUIGestureRecognizer = UIGestureRecognizer
 public typealias NSUIGestureRecognizerState = UIGestureRecognizer.State
 public typealias NSUIGestureRecognizerDelegate = UIGestureRecognizerDelegate
 public typealias NSUITapGestureRecognizer = UITapGestureRecognizer
 public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
-=======
-	import UIKit
-	
-	public typealias NSUIFont = UIFont
-	public typealias NSUIColor = UIColor
-	public typealias NSUIEvent = UIEvent
-	public typealias NSUITouch = UITouch
-	public typealias NSUIImage = UIImage
-	public typealias NSUIBezierPath = UIBezierPath
-	public typealias NSUIScrollView = UIScrollView
-	public typealias NSUIGestureRecognizer = UIGestureRecognizer
-	public typealias NSUIGestureRecognizerState = UIGestureRecognizerState
-	public typealias NSUIGestureRecognizerDelegate = UIGestureRecognizerDelegate
-	public typealias NSUITapGestureRecognizer = UITapGestureRecognizer
-	public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
->>>>>>> Add rounded rects as a form for legend (#7)
 #if !os(tvOS)
 public typealias NSUIPinchGestureRecognizer = UIPinchGestureRecognizer
 public typealias NSUIRotationGestureRecognizer = UIRotationGestureRecognizer
@@ -229,39 +213,44 @@ func NSUIGraphicsBeginImageContextWithOptions(_ size: CGSize, _ opaque: Bool, _ 
 #endif
 
 #if os(OSX)
-	import Cocoa
-	import Quartz
+import Cocoa
+import Quartz
 
-	public typealias NSUIFont = NSFont
-	public typealias NSUIColor = NSColor
-	public typealias NSUIEvent = NSEvent
-	public typealias NSUITouch = NSTouch
-	public typealias NSUIImage = NSImage
-	public typealias NSUIBezierPath = NSBezierPath
-	public typealias NSUIScrollView = NSScrollView
-	public typealias NSUIGestureRecognizer = NSGestureRecognizer
-	public typealias NSUIGestureRecognizerState = NSGestureRecognizer.State
-	public typealias NSUIGestureRecognizerDelegate = NSGestureRecognizerDelegate
-	public typealias NSUITapGestureRecognizer = NSClickGestureRecognizer
-	public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
-	public typealias NSUIPinchGestureRecognizer = NSMagnificationGestureRecognizer
-	public typealias NSUIRotationGestureRecognizer = NSRotationGestureRecognizer
-	public typealias NSUIScreen = NSScreen
+public typealias NSUIFont = NSFont
+public typealias NSUIColor = NSColor
+public typealias NSUIEvent = NSEvent
+public typealias NSUITouch = NSTouch
+public typealias NSUIImage = NSImage
+public typealias NSUIBezierPath = NSBezierPath
+public typealias NSUIScrollView = NSScrollView
+public typealias NSUIGestureRecognizer = NSGestureRecognizer
+public typealias NSUIGestureRecognizerState = NSGestureRecognizer.State
+public typealias NSUIGestureRecognizerDelegate = NSGestureRecognizerDelegate
+public typealias NSUITapGestureRecognizer = NSClickGestureRecognizer
+public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
+public typealias NSUIPinchGestureRecognizer = NSMagnificationGestureRecognizer
+public typealias NSUIRotationGestureRecognizer = NSRotationGestureRecognizer
+public typealias NSUIScreen = NSScreen
 
-	/** On OS X there is no CADisplayLink. Use a 60 fps timer to render the animations. */
-	public class NSUIDisplayLink
+/** On OS X there is no CADisplayLink. Use a 60 fps timer to render the animations. */
+public class NSUIDisplayLink
+{
+    private var timer: Timer?
+    private var displayLink: CVDisplayLink?
+    private var _timestamp: CFTimeInterval = 0.0
+
+    private weak var _target: AnyObject?
+    private var _selector: Selector
+
+    public var timestamp: CFTimeInterval
     {
-        private var timer: Timer?
-        private var displayLink: CVDisplayLink?
-        private var _timestamp: CFTimeInterval = 0.0
-        
-        private weak var _target: AnyObject?
-        private var _selector: Selector
-        
-        public var timestamp: CFTimeInterval
-        {
-            return _timestamp
-        }
+        return _timestamp
+    }
+
+    init(target: Any, selector: Selector)
+    {
+        _target = target as AnyObject
+        _selector = selector
 
         if CVDisplayLinkCreateWithActiveCGDisplays(&displayLink) == kCVReturnSuccess
         {
@@ -269,18 +258,18 @@ func NSUIGraphicsBeginImageContextWithOptions(_ size: CGSize, _ opaque: Bool, _ 
             CVDisplayLinkSetOutputCallback(displayLink!, { (displayLink, inNow, inOutputTime, flagsIn, flagsOut, userData) -> CVReturn in
 
                 let _self = unsafeBitCast(userData, to: NSUIDisplayLink.self)
-                    
+
                 _self._timestamp = CFAbsoluteTimeGetCurrent()
                 _self._target?.performSelector(onMainThread: _self._selector, with: _self, waitUntilDone: false)
-                    
+
                 return kCVReturnSuccess
-                }, Unmanaged.passUnretained(self).toOpaque())
+            }, Unmanaged.passUnretained(self).toOpaque())
         }
         else
         {
             timer = Timer(timeInterval: 1.0 / 60.0, target: target, selector: selector, userInfo: nil, repeats: true)
         }
-		}
+    }
 
     deinit
     {
@@ -345,41 +334,8 @@ extension NSUIPanGestureRecognizer
         return 1
     }
 
-<<<<<<< HEAD
     /// FIXME: Currently there are no more than 1 touch in OSX gestures, and not way to create custom touch gestures.
     final func nsuiLocationOfTouch(_ touch: Int, inView: NSView?) -> NSPoint
-=======
-    extension NSBezierPath
-    {
-        convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat) // rounds all corners with the same horizontal and vertical radius
-        {
-            self.init(roundedRect: rect, xRadius: cornerRadius, yRadius: cornerRadius)
-        }
-
-        var cgPath: CGPath {
-            let path = CGMutablePath()
-            var points = [CGPoint](repeating: .zero, count: 3)
-
-            for i in 0 ..< self.elementCount {
-                let type = self.element(at: i, associatedPoints: &points)
-                switch type {
-                case .moveToBezierPathElement:
-                    path.move(to: points[0])
-                case .lineToBezierPathElement:
-                    path.addLine(to: points[0])
-                case .curveToBezierPathElement:
-                    path.addCurve(to: points[2], control1: points[0], control2: points[1])
-                case .closePathBezierPathElement:
-                    path.closeSubpath()
-                }
-            }
-
-            return path
-        }
-    }
-
-    extension NSScrollView
->>>>>>> Add rounded rects as a form for legend (#7)
     {
         return super.location(in: inView)
     }
@@ -426,6 +382,35 @@ extension NSView
     final var nsuiGestureRecognizers: [NSGestureRecognizer]?
     {
         return self.gestureRecognizers
+    }
+}
+
+extension NSBezierPath
+{
+    convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat) // rounds all corners with the same horizontal and vertical radius
+    {
+        self.init(roundedRect: rect, xRadius: cornerRadius, yRadius: cornerRadius)
+    }
+
+    var cgPath: CGPath {
+        let path = CGMutablePath()
+        var points = [CGPoint](repeating: .zero, count: 3)
+
+        for i in 0 ..< self.elementCount {
+            let type = self.element(at: i, associatedPoints: &points)
+            switch type {
+            case .moveToBezierPathElement:
+                path.move(to: points[0])
+            case .lineToBezierPathElement:
+                path.addLine(to: points[0])
+            case .curveToBezierPathElement:
+                path.addCurve(to: points[2], control1: points[0], control2: points[1])
+            case .closePathBezierPathElement:
+                path.closeSubpath()
+            }
+        }
+
+        return path
     }
 }
 
