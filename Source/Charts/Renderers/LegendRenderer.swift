@@ -584,7 +584,7 @@ open class LegendRenderer: Renderer
             context.saveGState()
 
             let rect = CGRect(x: x, y: y - formSize / 2, width: formSize, height: formSize)
-            let clipPath = NSUIBezierPath(roundedRect: rect, cornerRadius: roundedRect).cgPath
+            let clipPath = UIBezierPath(roundedRect: rect, cornerRadius: roundedRect).cgPath
 
             context.addPath(clipPath)
             context.setFillColor(formColor.cgColor)

@@ -515,7 +515,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
 
         if let xValue = h?.x
         {
-            if let xValueIndex = xAxis.entries.index(of: xValue)
+            if let xValueIndex = xAxis.entries.firstIndex(of: xValue)
             {
                 xAxis.selectedItemIndex = xValueIndex
             }

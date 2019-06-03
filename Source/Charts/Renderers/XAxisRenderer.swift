@@ -237,7 +237,7 @@ open class XAxisRenderer: AxisRendererBase
                           formattedLabel: label,
                           x: position.x,
                           y: pos,
-                          attributes: (i == xAxis.selectedItemIndex) ? labelAttrsSelected : labelAttrs,
+                          attributes: (i == xAxis.selectedItemIndex) ? labelAttrs : labelAttrs,
                           constrainedToSize: labelMaxSize,
                           anchor: anchor,
                           angleRadians: labelRotationAngleRadians)
