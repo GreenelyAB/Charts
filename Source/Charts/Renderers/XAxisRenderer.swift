@@ -170,12 +170,13 @@ open class XAxisRenderer: AxisRendererBase
         
         let paraStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
         paraStyle.alignment = .center
-        
-        let labelAttrs: [NSAttributedString.Key : Any] = [
-            .font: xAxis.labelFont,
+
+        let labelAttrs: [NSAttributedString.Key : Any] = [.font: xAxis.labelFont,
             .foregroundColor: xAxis.labelTextColor,
-            .paragraphStyle: paraStyle
-        ]
+            .paragraphStyle: paraStyle]
+        let labelAttrsSelected: [NSAttributedString.Key : Any] = [.font: xAxis.labelFont,
+                                                                 .foregroundColor: xAxis.labelTextColorSelected ?? xAxis.labelTextColor,
+                                                                 .paragraphStyle: paraStyle]
         let labelRotationAngleRadians = xAxis.labelRotationAngle.DEG2RAD
         
         let centeringEnabled = xAxis.isCenterAxisLabelsEnabled
@@ -237,7 +238,7 @@ open class XAxisRenderer: AxisRendererBase
                           formattedLabel: label,
                           x: position.x,
                           y: pos,
-                          attributes: labelAttrs,
+                          attributes: (i == xAxis.selectedItemIndex) ? labelAttrsSelected : labelAttrs,
                           constrainedToSize: labelMaxSize,
                           anchor: anchor,
                           angleRadians: labelRotationAngleRadians)

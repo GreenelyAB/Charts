@@ -422,8 +422,8 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 // Set the color for the currently drawn value. If the index is out of bounds, reuse colors.
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
-            
-            context.fill(barRect)
+
+            drawBar(context: context, barRect: barRect, rounded: dataProvider.shouldRoundBars)
             
             if drawBorder
             {
@@ -802,12 +802,35 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 prepareBarHighlight(x: e.x, y1: y1, y2: y2, barWidthHalf: barData.barWidth / 2.0, trans: trans, rect: &barRect)
                 
                 setHighlightDrawPos(highlight: high, barRect: barRect)
-                
-                context.fill(barRect)
+
+                drawBar(context: context, barRect: barRect, rounded: dataProvider.shouldRoundBars)
             }
         }
         
         context.restoreGState()
+    }
+
+    open func drawBar(context: CGContext, barRect: CGRect, rounded: Bool) {
+        if rounded {
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: barRect.minX, y: barRect.maxY))
+
+            let cornerRadius: CGFloat = barRect.width / 2
+            let curvePointY = barRect.minY + cornerRadius
+            let controlPointY = barRect.minY - cornerRadius / 3
+
+            path.addLine(to: CGPoint(x: barRect.minX, y: curvePointY))
+            path.addCurve(to: CGPoint(x: barRect.maxX, y: curvePointY),
+                          control1: CGPoint(x: barRect.minX, y: controlPointY),
+                          control2: CGPoint(x: barRect.maxX, y: controlPointY))
+            path.addLine(to: CGPoint(x: barRect.maxX, y: barRect.maxY))
+            path.closeSubpath()
+
+            context.addPath(path)
+            context.fillPath()
+        } else {
+            context.fill(barRect)
+        }
     }
 
     /// Sets the drawing position of the highlight object based on the given bar-rect.

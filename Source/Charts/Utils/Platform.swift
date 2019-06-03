@@ -11,6 +11,7 @@ public typealias NSUIColor = UIColor
 public typealias NSUIEvent = UIEvent
 public typealias NSUITouch = UITouch
 public typealias NSUIImage = UIImage
+public typealias NSUIBezierPath = UIBezierPath
 public typealias NSUIScrollView = UIScrollView
 public typealias NSUIGestureRecognizer = UIGestureRecognizer
 public typealias NSUIGestureRecognizerState = UIGestureRecognizer.State
@@ -220,6 +221,7 @@ public typealias NSUIColor = NSColor
 public typealias NSUIEvent = NSEvent
 public typealias NSUITouch = NSTouch
 public typealias NSUIImage = NSImage
+public typealias NSUIBezierPath = NSBezierPath
 public typealias NSUIScrollView = NSScrollView
 public typealias NSUIGestureRecognizer = NSGestureRecognizer
 public typealias NSUIGestureRecognizerState = NSGestureRecognizer.State
@@ -245,7 +247,7 @@ public class NSUIDisplayLink
         return _timestamp
     }
 
-		init(target: Any, selector: Selector)
+    init(target: Any, selector: Selector)
     {
         _target = target as AnyObject
         _selector = selector
@@ -256,18 +258,18 @@ public class NSUIDisplayLink
             CVDisplayLinkSetOutputCallback(displayLink!, { (displayLink, inNow, inOutputTime, flagsIn, flagsOut, userData) -> CVReturn in
 
                 let _self = unsafeBitCast(userData, to: NSUIDisplayLink.self)
-                    
+
                 _self._timestamp = CFAbsoluteTimeGetCurrent()
                 _self._target?.performSelector(onMainThread: _self._selector, with: _self, waitUntilDone: false)
-                    
+
                 return kCVReturnSuccess
-                }, Unmanaged.passUnretained(self).toOpaque())
+            }, Unmanaged.passUnretained(self).toOpaque())
         }
         else
         {
             timer = Timer(timeInterval: 1.0 / 60.0, target: target, selector: selector, userInfo: nil, repeats: true)
         }
-		}
+    }
 
     deinit
     {
@@ -380,6 +382,36 @@ extension NSView
     final var nsuiGestureRecognizers: [NSGestureRecognizer]?
     {
         return self.gestureRecognizers
+    }
+}
+
+extension NSBezierPath
+{
+    convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat) // rounds all corners with the same horizontal and vertical radius
+    {
+        self.init(roundedRect: rect, xRadius: cornerRadius, yRadius: cornerRadius)
+    }
+
+    var cgPath: CGPath {
+        let path = CGMutablePath()
+        var points = [CGPoint](repeating: .zero, count: 3)
+
+        for i in 0 ..< self.elementCount {
+            let type = self.element(at: i, associatedPoints: &points)
+            switch type {
+            case .moveTo:
+                path.move(to: points[0])
+            case .lineTo:
+                path.addLine(to: points[0])
+            case .curveTo:
+                path.addCurve(to: points[2], control1: points[0], control2: points[1])
+            case .closePath:
+                path.closeSubpath()
+            default: break
+            }
+        }
+
+        return path
     }
 }
 

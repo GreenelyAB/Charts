@@ -17,7 +17,7 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
 {
     /// the fill-formatter used for determining the position of the fill-line
     internal var _fillFormatter: IFillFormatter!
-    
+
     /// enum that allows to specify the order in which the different data objects for the combined-chart are drawn
     @objc(CombinedChartDrawOrder)
     public enum DrawOrder: Int
@@ -202,7 +202,9 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
     
     /// `true` the highlight is be full-bar oriented, `false` ifsingle-value
     open var isHighlightFullBarEnabled: Bool { return highlightFullBarEnabled }
-    
+
+    open var shouldRoundBars = false
+
     // MARK: - ChartViewBase
     
     /// draws all MarkerViews on the highlighted positions
@@ -237,7 +239,22 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
             }
             
             // callbacks to update the content
-            marker.refreshContent(entry: e, highlight: highlight)
+            if let marker = marker as? IMultiValueMarker {
+                var markerData: [MarkerData] = []
+                (data?.dataSets ?? []).enumerated().forEach { (dataSetIndex, dataSet) in
+                    guard let entry = dataSet.entriesForXValue(e.x).first,
+                        let color = dataSet.colors.first else {
+                            return
+                    }
+
+                    let highlight = Highlight(x: entry.x, y: entry.y, dataSetIndex: dataSetIndex)
+                    markerData.append(MarkerData(entry: entry, highlight: highlight, color: color, valueFormatter: dataSet.valueFormatter))
+                }
+
+                marker.refreshContent(items: markerData)
+            } else {
+                marker.refreshContent(entry: e, highlight: highlight)
+            }
             
             // draw the marker
             marker.draw(context: context, point: pos)

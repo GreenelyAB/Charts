@@ -512,6 +512,24 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         var entry: ChartDataEntry?
         var h = highlight
+
+        if let xValue = h?.x
+        {
+            if let xValueIndex = xAxis.entries.firstIndex(of: xValue)
+            {
+                xAxis.selectedItemIndex = xValueIndex
+            }
+            else
+            {
+                // deselecting axis item when an axis item related to a highlighted chart entry is not recognized
+                xAxis.selectedItemIndex = nil
+            }
+        }
+        else
+        {
+            // deselecting axis item when there's no highlighted chart entry
+            xAxis.selectedItemIndex = nil
+        }
         
         if h == nil
         {
@@ -603,7 +621,22 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             }
 
             // callbacks to update the content
-            marker.refreshContent(entry: e, highlight: highlight)
+            if let marker = marker as? IMultiValueMarker {
+                var markerData: [MarkerData] = []
+                (data?.dataSets ?? []).enumerated().forEach({ (dataSetIndex, dataSet) in
+                    guard let entry = dataSet.entriesForXValue(e.x).first,
+                        let color = dataSet.colors.first else {
+                            return
+                    }
+
+                    let highlight = Highlight(x: entry.x, y: entry.y, dataSetIndex: dataSetIndex)
+                    markerData.append(MarkerData(entry: entry, highlight: highlight, color: color, valueFormatter: dataSet.valueFormatter))
+                })
+
+                marker.refreshContent(items: markerData)
+            } else {
+                marker.refreshContent(entry: e, highlight: highlight)
+            }
             
             // draw the marker
             marker.draw(context: context, point: pos)

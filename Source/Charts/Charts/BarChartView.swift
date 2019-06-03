@@ -20,7 +20,7 @@ open class BarChartView: BarLineChartViewBase, BarChartDataProvider
 
     /// if set to true, a grey area is drawn behind each bar that indicates the maximum value
     private var _drawBarShadowEnabled = false
-    
+
     internal override func initialize()
     {
         super.initialize()
@@ -183,4 +183,6 @@ open class BarChartView: BarLineChartViewBase, BarChartDataProvider
     
     /// `true` if drawing shadows (maxvalue) for each bar is enabled, `false` ifnot
     open var isDrawBarShadowEnabled: Bool { return drawBarShadowEnabled }
+
+    open var shouldRoundBars = false
 }
