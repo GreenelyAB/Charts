@@ -164,21 +164,28 @@ open class LineChartRenderer: LineRadarRenderer
         }
         
         context.saveGState()
-        
+        context.saveGState()
+        defer { context.restoreGState() }
+
         if dataSet.isDrawFilledEnabled
         {
             // Copy this path because we make changes to it
             let fillPath = cubicPath.mutableCopy()
-            
+
             drawCubicFill(context: context, dataSet: dataSet, spline: fillPath!, matrix: valueToPixelMatrix, bounds: _xBounds)
         }
-        
-        context.beginPath()
-        context.addPath(cubicPath)
-        context.setStrokeColor(drawingColor.cgColor)
-        context.strokePath()
-        
-        context.restoreGState()
+
+        if dataSet.isDrawLineWithGradientEnabled
+        {
+            drawGradientLine(context: context, dataSet: dataSet, spline: cubicPath, matrix: valueToPixelMatrix)
+        }
+        else
+        {
+            context.beginPath()
+            context.addPath(cubicPath)
+            context.setStrokeColor(drawingColor.cgColor)
+            context.strokePath()
+        }
     }
     
     @objc open func drawHorizontalBezier(context: CGContext, dataSet: ILineChartDataSet)
@@ -787,5 +794,103 @@ open class LineChartRenderer: LineRadarRenderer
         modifier(element)
 
         return element
+    }
+
+    /// Generates the path that is used for gradient drawing.
+    private func generateGradientLinePath(dataSet: ILineChartDataSet, fillMin: CGFloat, from: Int, to: Int, matrix: CGAffineTransform) -> CGPath
+    {
+        let phaseX = CGFloat(animator.phaseX)
+        let phaseY = CGFloat(animator.phaseY)
+
+        var e: ChartDataEntry!
+
+        let generatedPath = CGMutablePath()
+        e = dataSet.entryForIndex(from)
+        if e != nil
+        {
+            generatedPath.move(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y) * phaseY), transform: matrix)
+        }
+
+        // create a new path
+        let to = Int(ceil(CGFloat(to - from) * phaseX + CGFloat(from)))
+        for i in (from + 1)..<to
+        {
+            guard let e = dataSet.entryForIndex(i) else { continue }
+            generatedPath.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y) * phaseY), transform: matrix)
+        }
+        return generatedPath
+    }
+
+    func drawGradientLine(context: CGContext, dataSet: ILineChartDataSet, spline: CGPath, matrix: CGAffineTransform)
+        {
+            guard let gradientPositions = dataSet.gradientPositions else
+            {
+                assertionFailure("Must set `gradientPositions if `dataSet.isDrawLineWithGradientEnabled` is true")
+                return
+            }
+
+            // `insetBy` is applied since bounding box
+            // doesn't take into account line width
+            // so that peaks are trimmed since
+            // gradient start and gradient end calculated wrong
+            let boundingBox = spline.boundingBox
+                .insetBy(dx: -dataSet.lineWidth / 2, dy: -dataSet.lineWidth / 2)
+
+            guard !boundingBox.isNull, !boundingBox.isInfinite, !boundingBox.isEmpty else {
+                return
+            }
+
+            let gradientStart = CGPoint(x: 0, y: boundingBox.minY)
+            let gradientEnd = CGPoint(x: 0, y: boundingBox.maxY)
+            let gradientColorComponents: [CGFloat] = dataSet.colors
+                .reversed()
+                .reduce(into: []) { (components, color) in
+                    guard let (r, g, b, a) = color.nsuirgba else {
+                        return
+                    }
+                    components += [r, g, b, a]
+                }
+            let gradientLocations: [CGFloat] = gradientPositions.reversed()
+                .map { (position) in
+                    let location = CGPoint(x: boundingBox.minX, y: position)
+                        .applying(matrix)
+                    let normalizedLocation = (location.y - boundingBox.minY)
+                        / (boundingBox.maxY - boundingBox.minY)
+                    return normalizedLocation.clamped(to: 0...1)
+                }
+
+            let baseColorSpace = CGColorSpaceCreateDeviceRGB()
+            guard let gradient = CGGradient(
+                    colorSpace: baseColorSpace,
+                    colorComponents: gradientColorComponents,
+                    locations: gradientLocations,
+                    count: gradientLocations.count) else {
+                return
+            }
+
+            context.saveGState()
+            defer { context.restoreGState() }
+
+            context.beginPath()
+            context.addPath(spline)
+            context.replacePathWithStrokedPath()
+            context.clip()
+            context.drawLinearGradient(gradient, start: gradientStart, end: gradientEnd, options: [])
+        }
+}
+
+extension NSUIColor
+{
+    var nsuirgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+
+        guard getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return nil
+        }
+
+        return (red: red, green: green, blue: blue, alpha: alpha)
     }
 }

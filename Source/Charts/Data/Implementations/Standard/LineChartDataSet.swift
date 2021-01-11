@@ -155,8 +155,12 @@ open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet, IValueSli
         }
     }
     
+    open var isDrawLineWithGradientEnabled = false
+
+    open var gradientPositions: [CGFloat]?
+
     // MARK: NSCopying
-    
+
     open override func copy(with zone: NSZone? = nil) -> Any
     {
         let copy = super.copy(with: zone) as! LineChartDataSet
@@ -172,6 +176,8 @@ open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet, IValueSli
         copy.drawCircleHoleEnabled = drawCircleHoleEnabled
         copy.mode = mode
         copy._fillFormatter = _fillFormatter
+        copy.isDrawLineWithGradientEnabled = isDrawLineWithGradientEnabled
+        copy.gradientPositions = gradientPositions
         return copy
     }
 }
