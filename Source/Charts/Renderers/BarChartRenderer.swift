@@ -423,7 +423,11 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
 
-            drawBar(context: context, barRect: barRect, rounded: dataProvider.shouldRoundBars)
+            if buffer.rects.count == dataSet.entryCount * 2 && j % 2 == 0 {
+                drawBar(context: context, barRect: barRect, rounded: false)
+            } else {
+                drawBar(context: context, barRect: barRect, rounded: dataProvider.shouldRoundBars)
+            }
             
             if drawBorder
             {
