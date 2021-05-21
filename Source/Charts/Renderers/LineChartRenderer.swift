@@ -75,7 +75,7 @@ open class LineChartRenderer: LineRadarRenderer
         {
         case .linear: fallthrough
         case .stepped:
-            drawLinear(context: context, dataSet: dataSet)
+            drawGradientSteppedLinear(context: context, dataSet: dataSet)
             
         case .cubicBezier:
             drawCubicBezier(context: context, dataSet: dataSet)
@@ -379,6 +379,90 @@ open class LineChartRenderer: LineRadarRenderer
         
         context.restoreGState()
     }
+
+    @objc open func drawGradientSteppedLinear(context: CGContext, dataSet: ILineChartDataSet)
+    {
+        guard let dataProvider = dataProvider else { return }
+
+        let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
+
+        let valueToPixelMatrix = trans.valueToPixelMatrix
+
+        let entryCount = dataSet.entryCount
+        let isDrawSteppedEnabled = dataSet.mode == .stepped
+        let pointsPerEntryPair = isDrawSteppedEnabled ? 4 : 2
+
+        let phaseY = animator.phaseY
+
+        _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
+
+        // if drawing filled is enabled
+        if dataSet.isDrawFilledEnabled && entryCount > 0
+        {
+            drawLinearFill(context: context, dataSet: dataSet, trans: trans, bounds: _xBounds)
+        }
+
+        context.saveGState()
+        defer { context.restoreGState() }
+
+        guard dataSet.entryForIndex(_xBounds.min) != nil else {
+            return
+        }
+
+        var firstPoint = true
+
+        let path = CGMutablePath()
+        for x in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
+        {
+            guard let e1 = dataSet.entryForIndex(x == 0 ? 0 : (x - 1)) else { continue }
+            guard let e2 = dataSet.entryForIndex(x) else { continue }
+
+            let startPoint =
+                CGPoint(
+                    x: CGFloat(e1.x),
+                    y: CGFloat(e1.y * phaseY))
+                .applying(valueToPixelMatrix)
+
+            if firstPoint
+            {
+                path.move(to: startPoint)
+                firstPoint = false
+            }
+            else
+            {
+                path.addLine(to: startPoint)
+            }
+
+            if isDrawSteppedEnabled
+            {
+                let steppedPoint =
+                    CGPoint(
+                        x: CGFloat(e2.x),
+                        y: CGFloat(e1.y * phaseY))
+                    .applying(valueToPixelMatrix)
+                path.addLine(to: steppedPoint)
+            }
+
+            let endPoint =
+                CGPoint(
+                    x: CGFloat(e2.x),
+                    y: CGFloat(e2.y * phaseY))
+                .applying(valueToPixelMatrix)
+            path.addLine(to: endPoint)
+        }
+
+        if !firstPoint
+        {
+            if dataSet.isDrawLineWithGradientEnabled {
+                drawGradientLine(context: context, dataSet: dataSet, spline: path, matrix: valueToPixelMatrix)
+            } else {
+                context.beginPath()
+                context.addPath(path)
+                context.setStrokeColor(dataSet.color(atIndex: 0).cgColor)
+                context.strokePath()
+            }
+        }
+    }
     
     open func drawLinearFill(context: CGContext, dataSet: ILineChartDataSet, trans: Transformer, bounds: XBounds)
     {
@@ -593,7 +677,11 @@ open class LineChartRenderer: LineRadarRenderer
             {
                 guard let e = dataSet.entryForIndex(j) else { break }
 
-                pt.x = CGFloat(e.x)
+                var xOffset = 0.0
+                if dataSet.mode == .stepped {
+                    xOffset = 0.5
+                }
+                pt.x = CGFloat(e.x + xOffset)
                 pt.y = CGFloat(e.y * phaseY)
                 pt = pt.applying(valueToPixelMatrix)
                 
@@ -727,8 +815,12 @@ open class LineChartRenderer: LineRadarRenderer
             {
                 context.setLineDash(phase: 0.0, lengths: [])
             }
-            
-            let x = high.x // get the x-position
+
+            var xOffset = 0.0
+            if set.mode == .stepped {
+                xOffset = 0.5
+            }
+            let x = high.x + xOffset // get the x-position
             let y = high.y * Double(animator.phaseY)
             
             if x > chartXMax * animator.phaseX
