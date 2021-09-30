@@ -159,6 +159,8 @@ open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet, IValueSli
 
     open var gradientPositions: [CGFloat]?
 
+    open var defaultColorForSteppedChart: NSUIColor? = NSUIColor.white
+
     // MARK: NSCopying
 
     open override func copy(with zone: NSZone? = nil) -> Any
@@ -178,6 +180,7 @@ open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet, IValueSli
         copy._fillFormatter = _fillFormatter
         copy.isDrawLineWithGradientEnabled = isDrawLineWithGradientEnabled
         copy.gradientPositions = gradientPositions
+        copy.defaultColorForSteppedChart = defaultColorForSteppedChart
         return copy
     }
 }

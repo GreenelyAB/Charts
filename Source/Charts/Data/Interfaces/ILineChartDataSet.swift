@@ -83,4 +83,7 @@ public protocol ILineChartDataSet: ILineRadarChartDataSet
 
     /// The points where gradient should change color
     var gradientPositions: [CGFloat]? { get set }
+
+    /// The default color for stepped chart color
+    var defaultColorForSteppedChart: NSUIColor? { get set }
 }

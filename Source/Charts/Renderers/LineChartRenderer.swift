@@ -75,7 +75,11 @@ open class LineChartRenderer: LineRadarRenderer
         {
         case .linear: fallthrough
         case .stepped:
-            drawGradientSteppedLinear(context: context, dataSet: dataSet)
+            if dataSet.isDrawLineWithGradientEnabled {
+                drawGradientSteppedLinear(context: context, dataSet: dataSet)
+            } else {
+                drawLinear(context: context, dataSet: dataSet)
+            }
             
         case .cubicBezier:
             drawCubicBezier(context: context, dataSet: dataSet)
@@ -373,8 +377,26 @@ open class LineChartRenderer: LineRadarRenderer
             }
             
             // get the color that is set for this line-segment
-            context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
-            context.strokeLineSegments(between: _lineSegments)
+            if isDrawSteppedEnabled {
+                context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
+                context.strokeLineSegments(between: [_lineSegments[0], _lineSegments[1]])
+                context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
+                context.strokeLineSegments(between: [_lineSegments[1], _lineSegments[2]])
+                if j > 0 {
+                    if dataSet.color(atIndex: j + 1).isEqual(dataSet.color(atIndex: j)) {
+                        context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
+                    } else {
+                        context.setStrokeColor(dataSet.defaultColorForSteppedChart?.cgColor ?? dataSet.color(atIndex: j).cgColor)
+                    }
+                    context.strokeLineSegments(between: [_lineSegments[2], _lineSegments[3]])
+                } else {
+                    context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
+                    context.strokeLineSegments(between: [_lineSegments[2], _lineSegments[3]])
+                }
+            } else {
+                context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
+                context.strokeLineSegments(between: _lineSegments)
+            }
         }
         
         context.restoreGState()
