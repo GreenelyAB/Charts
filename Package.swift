@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Charts",
+    name: "GACharts",
     products: [
         .library(name: "Charts", type: .dynamic, targets: ["Charts"])
     ],
