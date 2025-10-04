@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 
 /// This class encapsulates everything both Axis, Legend and LimitLines have in common

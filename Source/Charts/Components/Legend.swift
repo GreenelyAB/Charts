@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 @objc(ChartLegend)
 open class Legend: ComponentBase

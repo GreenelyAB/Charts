@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 @objc(ChartLegendRenderer)
 open class LegendRenderer: Renderer

@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 /// Chart that draws bars.
 open class BarChartView: BarLineChartViewBase, BarChartDataProvider

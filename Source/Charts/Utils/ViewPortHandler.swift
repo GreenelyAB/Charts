@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 /// Class that contains information about the charts current viewport settings, including offsets, scale & translation levels, ...
 @objc(ChartViewPortHandler)

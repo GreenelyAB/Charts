@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 /// BarChart with horizontal bar orientation. In this implementation, x- and y-axis are switched.
 open class HorizontalBarChartView: BarChartView

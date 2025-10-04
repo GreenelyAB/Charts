@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 @objc(BarChartHighlighter)
 open class BarHighlighter: ChartHighlighter

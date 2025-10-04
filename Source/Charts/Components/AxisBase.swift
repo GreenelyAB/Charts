@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 /// Base class for all axes
 @objc(ChartAxisBase)

@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 
 /// Class representing the y-axis labels settings and its entries.

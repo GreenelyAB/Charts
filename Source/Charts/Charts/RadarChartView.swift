@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 
 /// Implementation of the RadarChart, a "spidernet"-like chart. It works best

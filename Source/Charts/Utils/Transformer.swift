@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 /// Transformer class that contains all matrices and is responsible for transforming values into pixels on the screen and backwards.
 @objc(ChartTransformer)

@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 /// Base class of PieChartView and RadarChartView.
 open class PieRadarChartViewBase: ChartViewBase

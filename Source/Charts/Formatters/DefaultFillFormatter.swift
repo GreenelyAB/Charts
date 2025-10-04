@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 /// Default formatter that calculates the position of the filled line.
 @objc(ChartDefaultFillFormatter)

@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 /// Chart that draws lines, surfaces, circles, ...
 open class LineChartView: BarLineChartViewBase, LineChartDataProvider
